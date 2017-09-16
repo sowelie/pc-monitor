@@ -1,0 +1,83 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+	ext {
+		springBootVersion = '1.5.6.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	providedRuntime
+}
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-web',
+			'com.github.votoanthuan:sigar:1.6.4',
+			'com.google.guava:guava:23.0',
+			'commons-lang:commons-lang:2.6'
+	runtime('org.springframework.boot:spring-boot-devtools')
+	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+springBoot {
+	executable true
+}
+
+task winsw(type: Copy) {
+	from ('winsw') {
+		exclude '*.exe'
+
+		filter(ReplaceTokens, tokens: [version: version])
+	}
+	from ('winsw') {
+		include '*.exe'
+	}
+	into 'build/libs'
+
+	rename { String fileName ->
+		if (fileName == 'WinSW.NET4.exe') {
+			return 'pcmonitor-' + version + '.exe'
+		} else if (fileName == 'WinSW.NET4.xml') {
+			return 'pcmonitor-' + version + '.xml'
+		} else {
+			return fileName
+		}
+	}
+}
+
+task nativeLibs(type: Copy) {
+	from 'lib'
+	into 'build/libs/lib'
+}
+
+task zipOutput(type: Zip) {
+	from 'build/libs'
+	include '**/*'
+	archiveName 'pcmonitor-' + version + '.zip'
+	destinationDir(file('build'))
+}
+
+build.doLast {
+	tasks.nativeLibs.execute()
+	tasks.winsw.execute()
+	tasks.zipOutput.execute()
+}

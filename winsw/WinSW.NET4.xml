@@ -1,0 +1,13 @@
+<service>
+    <id>tcpcmon</id>
+    <name>TwoCogs PC Monitor</name>
+    <description>Provides a web service for monitoring / managing a PC.</description>
+    <executable>java</executable>
+    <startargument>-Dspring.application.admin.enabled=true</startargument>
+    <startargument>-Dcom.sun.management.jmxremote.port=50201</startargument>
+    <startargument>-Dcom.sun.management.jmxremote.authenticate=false</startargument>
+    <startargument>-Dcom.sun.management.jmxremote.ssl=false</startargument>
+    <startargument>-Djava.library.path=lib</startargument>
+    <startargument>-jar</startargument>
+    <startargument>pcmonitor-@version@.jar</startargument>
+</service>
